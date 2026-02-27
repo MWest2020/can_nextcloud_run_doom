@@ -32,7 +32,7 @@ as a WebAssembly module and the default IWAD is Freedoom — all assets served l
     <repository type="git">https://github.com/OWNER/doomnextcloud</repository>
     <screenshot>https://PLACEHOLDER/screenshot.png</screenshot>
     <dependencies>
-        <nextcloud min-version="27" max-version="31"/>
+        <nextcloud min-version="27" max-version="32"/>
         <php min-version="8.1"/>
     </dependencies>
     <navigations>
