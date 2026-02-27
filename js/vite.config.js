@@ -4,12 +4,15 @@
  *
  * Vite build configuration for DoomNextcloud.
  *
- * Output layout:
- *   public/js/main.js   ← loaded by templates/game.php via script(APP_ID, 'main')
- *   public/css/app.css  ← loaded by templates/game.php via style(APP_ID, 'app')
+ * NC's script('doomnextcloud', 'main') serves from:  <app-root>/js/main.js
+ * NC's style('doomnextcloud', 'app')  serves from:  <app-root>/css/app.css
  *
- * base: '/apps/doomnextcloud/' ensures that dynamically imported chunks and
- * future WASM asset URLs are prefixed with the correct Nextcloud app path at runtime.
+ * So Vite must write:
+ *   js/main.js     → outDir = js/  (same dir as this config file, __dirname)
+ *   css/app.css    → assetFileNames '../css/app.css' (one level up from outDir)
+ *
+ * emptyOutDir: false — prevents Vite from wiping src/, vite.config.js, package.json
+ * that live alongside the output in the same js/ directory.
  */
 
 import { defineConfig } from 'vite'
@@ -19,31 +22,26 @@ export default defineConfig({
     base: '/apps/doomnextcloud/',
     root: resolve(__dirname, 'src'),
     build: {
-        outDir: resolve(__dirname, '../public/js'),
-        emptyOutDir: true,
-        // Collapse all CSS into a single app.css regardless of chunk boundaries.
-        // Required so the custom assetFileNames path applies deterministically.
+        // Output directly into js/ (the app-root js dir that NC's script() serves from)
+        outDir: resolve(__dirname, '.'),
+        emptyOutDir: false,  // MUST be false: outDir contains src/, package.json, etc.
         cssCodeSplit: false,
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'src/main.js'),
             },
             output: {
-                // Deterministic filenames — no content hash — so Nextcloud's
-                // script() helper can reference them by a stable name.
                 entryFileNames: '[name].js',
                 chunkFileNames: '[name].js',
                 assetFileNames: (assetInfo) => {
                     if (assetInfo.name?.endsWith('.css')) {
-                        // Emit CSS one level above outDir (public/js/ → public/css/).
-                        // Resolves to public/css/app.css at the repository root.
+                        // js/ → ../css/ = css/ at app root, served by style()
                         return '../css/app.css'
                     }
                     return '[name].[ext]'
                 },
             },
         },
-        // Allow large WASM-adjacent chunks (the engine glue JS can be large).
         chunkSizeWarningLimit: 4096,
     },
 })
