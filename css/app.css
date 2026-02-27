@@ -46,3 +46,9 @@
 .doomnextcloud-error {
     color: #ff4444;
 }
+
+/* Compound selector (specificity 0-2-0) overrides display:flex above so [hidden] works. */
+.doomnextcloud-loading[hidden],
+.doomnextcloud-error[hidden] {
+    display: none;
+}
