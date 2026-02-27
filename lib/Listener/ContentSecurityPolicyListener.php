@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace OCA\DoomNextcloud\Listener;
 
-use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IRequest;
@@ -45,7 +44,9 @@ class ContentSecurityPolicyListener implements IEventListener {
             return;
         }
 
-        $policy = new ContentSecurityPolicy();
+        // getPolicy() returns the ContentSecurityPolicy object being built for this request.
+        // Calling addAllowed* on it is additive — Nextcloud merges it with its defaults.
+        $policy = $event->getPolicy();
 
         // 'wasm-unsafe-eval' permits WebAssembly compilation APIs (WebAssembly.compile,
         // WebAssembly.instantiate, etc.) without granting the broader 'unsafe-eval'
@@ -56,9 +57,5 @@ class ContentSecurityPolicyListener implements IEventListener {
         // blob: in worker-src allows AudioWorklet and Web Worker instances constructed
         // from Blob URLs. Required for future audio worklet support; safe to add now.
         $policy->addAllowedWorkerSrcDomain('blob:');
-
-        // The framework merges this policy with Nextcloud's default CSP.
-        // Only addAllowed* methods are called — no reset or replace.
-        $event->setCsp($policy);
     }
 }
