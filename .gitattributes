@@ -1,0 +1,28 @@
+# Normalize line endings to LF in the repository
+* text=auto eol=lf
+
+# Binary files — never mangle
+*.wad binary
+*.wasm binary
+*.png binary
+*.svg text eol=lf
+*.jpg binary
+*.ico binary
+*.tar.gz binary
+*.zip binary
+
+# PHP / JS / CSS / HTML → always LF
+*.php text eol=lf
+*.js  text eol=lf
+*.ts  text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.xml text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.md   text eol=lf
+*.sh   text eol=lf
+
+# Shell scripts — mark as executable in the index
+*.sh linguist-language=Shell

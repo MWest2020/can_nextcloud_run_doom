@@ -1,0 +1,19 @@
+{
+  "name": "doomnextcloud-js",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Front-end JS build for DoomNextcloud Nextcloud app",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "lint": "echo 'PLACEHOLDER: add ESLint here (e.g. eslint src/)'",
+    "lint:fix": "echo 'PLACEHOLDER: add ESLint --fix here'"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

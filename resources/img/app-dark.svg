@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- DoomNextcloud — dark variant (light fill for dark backgrounds) -->
+  <!-- Path-only: no <text>, no <image>, no raster embeds, no width/height on root svg -->
+  <!-- Monitor frame + crosshair motif -->
+  <rect x="8" y="10" width="48" height="34" rx="3" fill="#ffffff"/>
+  <rect x="12" y="14" width="40" height="26" rx="1" fill="#1a1a2e"/>
+  <rect x="18" y="26" width="28" height="3" fill="#e63946"/>
+  <rect x="30" y="17" width="3" height="21" fill="#e63946"/>
+  <rect x="29" y="25" width="5" height="5" fill="#ffffff"/>
+  <rect x="28" y="44" width="8" height="6" rx="1" fill="#ffffff"/>
+  <rect x="20" y="50" width="24" height="4" rx="2" fill="#ffffff"/>
+</svg>

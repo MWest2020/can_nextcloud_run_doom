@@ -1,0 +1,48 @@
+/*
+ * SPDX-FileCopyrightText: 2024-present The DoomNextcloud Contributors
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * DoomNextcloud — app styles (placeholder)
+ */
+
+#doomnextcloud-app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: #000;
+}
+
+.doomnextcloud-canvas-mount {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    aspect-ratio: 4 / 3;
+}
+
+#doomnextcloud-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    outline: none; /* canvas must be focusable for keyboard input */
+}
+
+.doomnextcloud-loading,
+.doomnextcloud-error {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: monospace;
+    font-size: 1.2rem;
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.doomnextcloud-error {
+    color: #ff4444;
+}

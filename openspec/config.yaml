@@ -1,0 +1,60 @@
+schema: spec-driven
+
+context: |
+  Project: DoomNextcloud — Nextcloud App Store–targeted app delivering a 100% open
+  playable Doom-like experience in the browser via WASM + Freedoom assets.
+
+  Hard constraints (non-negotiable):
+    - 100% open playable: default IWAD must be Freedoom (open license); no proprietary downloads.
+    - Nextcloud App Store target: must pass occ app:check-code; must be code-signed for release.
+    - No external CDNs, no remote scripts, no remote asset loading at runtime.
+      Everything is served from the Nextcloud app bundle.
+    - All third-party components (engine, assets, JS deps) must be attributed in
+      THIRD_PARTY_NOTICES.md with license-compatible terms.
+    - CI must run occ app:check-code (even if via placeholder until Docker env is ready).
+    - Signing is integrated into the release flow (build/packaging/sign.sh).
+
+  MVP scope:
+    - Launch game from Nextcloud navigation/personal page.
+    - <canvas> renders a playable level (Freedoom IWAD).
+    - Audio + keyboard/mouse input in modern browsers (Chrome/Firefox/Safari latest-2).
+    - Zero external network requests at runtime.
+    - No user file uploads; no arbitrary file execution; no remote code.
+    - Target: modern browsers supported by the Nextcloud web UI.
+
+rules:
+  proposal:
+    - Output file: openspec/changes/<change-id>/proposal.md
+    - Maximum 400 words.
+    - Required sections: Goal, Success Criteria, Non-Goals, Risks, Decisions (checklist), MVP Scope.
+    - Must explicitly state "100% open playable" and "no external assets/CDN".
+    - Must not contain implementation details (engine name, library choices).
+    - Gate: proposal must be reviewed and approved before specs work begins.
+
+  specs:
+    - Output file: openspec/changes/<change-id>/specs.md
+    - Requirements numbered REQ-001, REQ-002, … with acceptance criteria.
+    - Required sections: Licensing, App Store Constraints, Security/CSP, Performance, Compatibility.
+    - Decisions numbered DEC-001, DEC-002, … (engine choice, asset pipeline, etc.)
+    - If any DEC-### is unresolved: mark "BLOCKER" — downstream agents (C, D) must stop.
+    - Gate: all DECs resolved (no BLOCKERs) before design work begins.
+
+  design:
+    - Output file: openspec/changes/<change-id>/design.md
+    - Only runnable if specs gate passes (no BLOCKERs).
+    - Required sections:
+        - App routing and UI integration (Nextcloud navigation entry, controller, template).
+        - Asset packaging strategy (WASM build pipeline, WAD placement, vite output).
+        - Caching headers and CSP approach.
+        - CI/CD pipeline: build → lint → check-code → package → sign → GitHub release.
+        - Threat model: top-5 risks + mitigations.
+    - Must reference REQ-### for each design decision.
+
+  tasks:
+    - Output file: openspec/changes/<change-id>/tasks.md
+    - Only runnable after design is complete.
+    - Each task ≤ 4 hours of work.
+    - Each task references at least one REQ-###.
+    - Tasks grouped into milestones; Milestone 1 must produce a GitHub Release artifact
+      runnable on a test Nextcloud instance.
+    - Task IDs: TASK-001, TASK-002, …

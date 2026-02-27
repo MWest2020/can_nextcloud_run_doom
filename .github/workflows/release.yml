@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build, Package, Sign & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: js/package-lock.json
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: composer
+
+      - name: Install JS dependencies
+        working-directory: js
+        run: npm ci
+
+      - name: Build JS bundle
+        working-directory: js
+        run: npm run build
+
+      - name: Install Composer dependencies (no dev)
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+      - name: Package app
+        # Calls build/packaging/make-app.sh which produces the .tar.gz archive
+        env:
+          APP_VERSION: ${{ github.ref_name }}
+        run: bash build/packaging/make-app.sh
+
+      - name: Sign package
+        # PLACEHOLDER: Signing requires NC_PRIVATE_KEY and NC_CERT secrets.
+        # See: https://nextcloudappstore.readthedocs.io/en/latest/developer.html#signing-and-publishing
+        env:
+          NC_PRIVATE_KEY: ${{ secrets.NC_PRIVATE_KEY }}
+          NC_CERTIFICATE: ${{ secrets.NC_CERTIFICATE }}
+          APP_VERSION: ${{ github.ref_name }}
+        run: bash build/packaging/sign.sh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/packaging/signed/doomnextcloud-*.tar.gz
+            build/packaging/signed/doomnextcloud-*.tar.gz.asc
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}

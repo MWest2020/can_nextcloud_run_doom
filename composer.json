@@ -1,0 +1,29 @@
+{
+  "name": "doomnextcloud/doomnextcloud",
+  "description": "A 100% open Doom-like game running in the Nextcloud web UI via WebAssembly and Freedoom assets.",
+  "type": "nextcloud-app",
+  "license": "AGPL-3.0-or-later",
+  "homepage": "https://github.com/OWNER/doomnextcloud",
+  "keywords": ["nextcloud", "game", "doom", "wasm", "freedoom"],
+  "require": {
+    "php": ">=8.1"
+  },
+  "require-dev": {
+  },
+  "autoload": {
+    "psr-4": {
+      "OCA\\DoomNextcloud\\": "lib/"
+    }
+  },
+  "scripts": {
+    "cs:fix": "placeholder — add PHP CS Fixer when ready",
+    "test": "placeholder — add PHPUnit when ready"
+  },
+  "config": {
+    "platform": {
+      "php": "8.1"
+    },
+    "optimize-autoloader": true,
+    "sort-packages": true
+  }
+}

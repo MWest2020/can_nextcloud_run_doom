@@ -1,0 +1,48 @@
+# Node / JS build artifacts
+node_modules/
+js/node_modules/
+dist/
+js/dist/
+public/js/
+public/css/
+
+# Build outputs
+build/runtime/output/
+*.tar.gz
+*.tar.bz2
+*.zip
+*.appstore.tar.gz
+
+# Signed packages
+build/packaging/signed/
+*.asc
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# PHP vendor
+vendor/
+composer.lock
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Nextcloud instance (if you symlink this repo into a Nextcloud install)
+nextcloud/
+
+# Test coverage
+coverage/
+tests/js/coverage/
+
+# Emscripten cache
+.emscripten_cache/
+
+# Lock files (optional: commit lockfiles for reproducibility)
+# js/package-lock.json
