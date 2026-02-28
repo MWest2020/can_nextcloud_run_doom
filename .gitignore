@@ -44,5 +44,9 @@ tests/js/coverage/
 # Emscripten cache
 .emscripten_cache/
 
+# WASM build artifacts (produced by build/runtime/build.sh, delivered as release assets)
+public/wasm/doom.js
+public/wasm/doom.wasm
+
 # Lock files (optional: commit lockfiles for reproducibility)
 # js/package-lock.json

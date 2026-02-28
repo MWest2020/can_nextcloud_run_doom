@@ -10,29 +10,44 @@ DoomNextcloud bundles or incorporates the following third-party components.
 | Field       | Value |
 |-------------|-------|
 | Name        | Freedoom |
-| Version     | TBD (pin to a specific release during asset integration) |
+| Version     | Latest stable (pin to release SHA when deploying) |
 | Source      | https://freedoom.github.io/ |
-| License     | Freedoom License (BSD-like, open; see full text below) |
-| Files       | `public/assets/freedoom/freedoom2.wad` (to be added manually) |
+| Repository  | https://github.com/freedoom/freedoom |
+| License     | BSD-3-Clause (Freedoom License) |
+| Files       | `public/assets/freedoom/freedoom1.wad` (placed by sysadmin) |
 
-**PLACEHOLDER:** Copy the full Freedoom license text here when assets are integrated.
-The Freedoom project license is available at:
-  https://github.com/freedoom/freedoom/blob/master/COPYING.adoc
+Freedoom is a free-content replacement for the Doom engine IWAD files.
+Full license: https://github.com/freedoom/freedoom/blob/master/COPYING.adoc
+
+> Copyright © 2001-2024 Contributors to the Freedoom project.
+> Redistribution and use in source and binary forms, with or without
+> modification, are permitted provided that the following conditions are met:
+> (1) Redistributions of source code must retain the above copyright notice,
+> (2) Redistributions in binary form must reproduce the above copyright notice,
+> (3) Neither the name "Freedoom" nor the names of contributors may be used to
+> endorse or promote products derived from this software without specific prior
+> written permission.
 
 ---
 
-## 2. Game Engine / Runtime (TBD)
+## 2. Game Engine — doomgeneric
 
 | Field       | Value |
 |-------------|-------|
-| Name        | TBD — to be determined by Agent C (Architect) |
-| Source      | TBD |
-| License     | TBD — must be GPL-compatible for App Store acceptance |
-| Files       | `public/wasm/` (output of build/runtime/ compilation) |
-| Build tool  | Emscripten (see build/runtime/Dockerfile) |
+| Name        | doomgeneric |
+| Author      | Ola Björling (ozkl) |
+| Source      | https://github.com/ozkl/doomgeneric |
+| License     | GNU General Public License v2.0 or later (GPL-2.0+) |
+| Files       | `public/wasm/doom.wasm`, `public/wasm/doom.js` (build artifacts) |
+| Build tool  | Emscripten (see `build/runtime/`) |
 
-**PLACEHOLDER:** Fill in engine name, version, source URL, and license text once chosen.
-The engine must be 100% open-source and App Store-license-compatible.
+doomgeneric is a portable Doom source port that abstracts platform I/O behind
+a minimal C API.  It incorporates the original Doom source code released by
+id Software under GPL-2.0-or-later.
+
+GPL-2.0-or-later is compatible with AGPL-3.0-or-later (the license of this app).
+The compiled WASM artifacts constitute a combined work distributed under AGPL-3.0-or-later.
+Full license: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
 ---
 

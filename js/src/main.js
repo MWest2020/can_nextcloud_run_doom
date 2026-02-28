@@ -4,40 +4,35 @@
  *
  * DoomNextcloud — main entry point
  *
- * This module bootstraps the WASM runtime when the DOM is ready.
- * It is the single entry point compiled by Vite (see vite.config.js).
+ * Bootstraps the WASM runtime when the DOM is ready.
+ * Single entry point compiled by Vite (see vite.config.js).
  */
 
 import { initRuntime } from './runtime/loader.js'
-import { initInput } from './runtime/input.js'
+import { setupInput }  from './runtime/input.js'
 
-/**
- * Wait for the Nextcloud DOM to be ready (it may load after DOMContentLoaded
- * in some Nextcloud versions), then boot the game.
- */
 document.addEventListener('DOMContentLoaded', async () => {
-    const canvas = document.getElementById('doomnextcloud-canvas')
+    const canvas    = document.getElementById('doomnextcloud-canvas')
     const loadingEl = document.getElementById('doomnextcloud-loading')
-    const errorEl = document.getElementById('doomnextcloud-error')
+    const errorEl   = document.getElementById('doomnextcloud-error')
 
     if (!canvas) {
-        console.error('[DoomNextcloud] Canvas mount not found in DOM.')
+        console.error('[DoomNextcloud] Canvas element not found in DOM.')
         return
     }
 
     try {
-        // Initialize keyboard/mouse input before loading the WASM module
-        initInput(canvas)
+        // Wire keyboard + mouse input. getModule() is a lazy getter so it
+        // resolves window.Module only after initRuntime has set it up.
+        setupInput(canvas, () => window.Module)
 
-        // Load and start the WASM runtime
-        await initRuntime(canvas)
-
-        // Hide the loading overlay once the runtime reports ready
-        if (loadingEl) loadingEl.hidden = true
+        // Load WASM engine, mount WAD, start game loop.
+        // initRuntime hides loadingEl itself from onRuntimeInitialized.
+        await initRuntime(canvas, loadingEl)
 
     } catch (err) {
         console.error('[DoomNextcloud] Failed to initialize runtime:', err)
         if (loadingEl) loadingEl.hidden = true
-        if (errorEl) errorEl.hidden = false
+        if (errorEl)   errorEl.hidden   = false
     }
 })

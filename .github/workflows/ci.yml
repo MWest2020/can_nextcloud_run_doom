@@ -34,11 +34,11 @@ jobs:
         working-directory: js
         run: npm run build
 
-      - name: Upload build artifact
+      - name: Upload JS artifact
         uses: actions/upload-artifact@v4
         with:
           name: js-dist
-          path: public/js/
+          path: js/main.js
           if-no-files-found: warn
 
   php-lint:
@@ -60,10 +60,36 @@ jobs:
       - name: PHP syntax check
         run: find . -name "*.php" -not -path "*/vendor/*" | xargs php -l
 
+  wasm-build:
+    name: WASM Engine Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t doomnextcloud-builder build/runtime/
+
+      - name: Compile doomgeneric → WASM
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            doomnextcloud-builder \
+            bash /workspace/build/runtime/build.sh
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-dist
+          path: |
+            public/wasm/doom.js
+            public/wasm/doom.wasm
+          if-no-files-found: error
+
   app-check-code:
     name: Nextcloud app:check-code (placeholder)
     runs-on: ubuntu-latest
-    needs: [js-build, php-lint]
+    needs: [js-build, php-lint, wasm-build]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

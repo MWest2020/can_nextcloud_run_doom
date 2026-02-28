@@ -2,66 +2,138 @@
  * SPDX-FileCopyrightText: 2024-present The DoomNextcloud Contributors
  * SPDX-License-Identifier: AGPL-3.0-or-later
  *
- * DoomNextcloud — keyboard and mouse input handler (placeholder)
+ * DoomNextcloud — input bridge (keyboard + mouse → doomgeneric)
  *
- * This module bridges browser input events to the WASM engine's input API.
- * The exact API depends on the engine chosen in DEC decisions (Agent B).
+ * Key codes from doomkeys.h (doomgeneric):
+ *   ASCII printable chars use their ASCII value directly.
+ *   Special keys use constants below.
  *
- * PLACEHOLDER: Input bindings are not yet wired to the WASM engine.
+ * Mouse button bitmask (Doom ev_mouse data1):
+ *   bit 0 = fire     (left button)
+ *   bit 1 = strafe   (right button)
+ *   bit 2 = use/open (middle button)
  */
+
+/* doomgeneric special key constants (from doomkeys.h) */
+const KEY_RIGHTARROW = 0xae
+const KEY_LEFTARROW  = 0xac
+const KEY_UPARROW    = 0xad
+const KEY_DOWNARROW  = 0xaf
+const KEY_ESCAPE     = 27
+const KEY_ENTER      = 13
+const KEY_BACKSPACE  = 127
+const KEY_RCTRL      = 0x80 + 0x1d   // 0x9d — fire
+const KEY_RALT       = 0x80 + 0x38   // 0xb8 — strafe modifier
+const KEY_RSHIFT     = 0x80 + 0x36   // 0xb6 — speed/run
+const KEY_F1         = 0x80 + 0x3b
+const KEY_F2         = 0x80 + 0x3c
+const KEY_F3         = 0x80 + 0x3d
+const KEY_F4         = 0x80 + 0x3e
+const KEY_F5         = 0x80 + 0x3f
+const KEY_F6         = 0x80 + 0x40
+const KEY_F7         = 0x80 + 0x41
+const KEY_F8         = 0x80 + 0x42
+const KEY_F9         = 0x80 + 0x43
+const KEY_F10        = 0x80 + 0x44
+const KEY_F11        = 0x80 + 0x57
+const KEY_F12        = 0x80 + 0x58
+
+/**
+ * Maps browser event.key → doomgeneric key code.
+ * Unmapped keys return undefined (event is ignored).
+ */
+const KEY_MAP = {
+    ArrowUp:    KEY_UPARROW,
+    ArrowDown:  KEY_DOWNARROW,
+    ArrowLeft:  KEY_LEFTARROW,
+    ArrowRight: KEY_RIGHTARROW,
+    Escape:     KEY_ESCAPE,
+    Enter:      KEY_ENTER,
+    Backspace:  KEY_BACKSPACE,
+    Control:    KEY_RCTRL,
+    Alt:        KEY_RALT,
+    Shift:      KEY_RSHIFT,
+    ' ':        32,   // space = use/open door
+    F1: KEY_F1, F2: KEY_F2, F3: KEY_F3,  F4: KEY_F4,
+    F5: KEY_F5, F6: KEY_F6, F7: KEY_F7,  F8: KEY_F8,
+    F9: KEY_F9, F10: KEY_F10, F11: KEY_F11, F12: KEY_F12,
+    // WASD — Doom handles these as ASCII
+    w: 'w'.charCodeAt(0), W: 'w'.charCodeAt(0),
+    a: 'a'.charCodeAt(0), A: 'a'.charCodeAt(0),
+    s: 's'.charCodeAt(0), S: 's'.charCodeAt(0),
+    d: 'd'.charCodeAt(0), D: 'd'.charCodeAt(0),
+    // Number row
+    '1': 49, '2': 50, '3': 51, '4': 52, '5': 53,
+    '6': 54, '7': 55, '8': 56, '9': 57, '0': 48,
+}
+
+/** Keys that need preventDefault to avoid browser scroll/shortcuts */
+const PREVENT_KEYS = new Set([
+    'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+    ' ', 'Enter', 'Escape', 'Control', 'Alt', 'Shift',
+    'F1', 'F2', 'F3', 'F4', 'F5', 'F6',
+    'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+])
 
 /**
  * Attach keyboard and mouse event listeners to the canvas.
- * The canvas must be focusable (tabindex="0").
+ * getModule() must return the live Emscripten Module object (may be null
+ * before the WASM runtime is fully initialised — calls are silently skipped).
  *
  * @param {HTMLCanvasElement} canvas
+ * @param {() => object|null} getModule  getter for window.Module
  */
-export function initInput(canvas) {
-    // Ensure the canvas can receive keyboard events
-    if (canvas.tabIndex < 0) {
-        canvas.tabIndex = 0
+export function setupInput(canvas, getModule) {
+    // Ensure canvas is focusable
+    if (canvas.tabIndex < 0) canvas.tabIndex = 0
+
+    /* ── Keyboard ──────────────────────────────────────────────── */
+
+    const sendKey = (pressed, browserKey) => {
+        const doomKey = KEY_MAP[browserKey]
+        if (doomKey === undefined) return
+        const mod = getModule()
+        if (mod?._DG_KeyEvent) mod._DG_KeyEvent(pressed ? 1 : 0, doomKey)
     }
 
     canvas.addEventListener('keydown', (e) => {
-        // PLACEHOLDER: forward e.key / e.keyCode to WASM engine input queue
-        // Prevent default for game keys (arrows, WASD, space, etc.)
-        if (isGameKey(e.key)) {
-            e.preventDefault()
-        }
+        if (PREVENT_KEYS.has(e.key)) e.preventDefault()
+        sendKey(true, e.key)
     })
 
     canvas.addEventListener('keyup', (e) => {
-        // PLACEHOLDER: forward key-up events to WASM engine
-        if (isGameKey(e.key)) {
-            e.preventDefault()
-        }
+        if (PREVENT_KEYS.has(e.key)) e.preventDefault()
+        sendKey(false, e.key)
     })
 
-    canvas.addEventListener('mousemove', (_e) => {
-        // PLACEHOLDER: forward mouse delta to WASM engine (pointer lock needed for look)
+    /* ── Mouse: focus canvas on click ──────────────────────────── */
+
+    canvas.addEventListener('click', () => canvas.focus())
+
+    /* ── Mouse: movement ────────────────────────────────────────── */
+
+    canvas.addEventListener('mousemove', (e) => {
+        const mod = getModule()
+        if (!mod?._DG_MouseMoveEvent) return
+        // Use pointer-lock relative movement if available, else absolute delta
+        const dx = e.movementX ?? 0
+        const dy = e.movementY ?? 0
+        if (dx !== 0 || dy !== 0) mod._DG_MouseMoveEvent(dx, dy)
     })
 
-    canvas.addEventListener('click', () => {
-        // Request pointer lock on click so mouse look works
-        // PLACEHOLDER: enable once engine mouse input API is known
-        // canvas.requestPointerLock()
-    })
+    /* ── Mouse: buttons ─────────────────────────────────────────── */
 
-    console.info('[DoomNextcloud] Input handlers attached (placeholder).')
-}
+    const sendMouseButtons = (e) => {
+        const mod = getModule()
+        if (!mod?._DG_MouseButtonEvent) return
+        // Doom bitmask: bit0=fire(left), bit1=strafe(right), bit2=use(middle)
+        let flags = 0
+        if (e.buttons & 1) flags |= 1  // left
+        if (e.buttons & 2) flags |= 2  // right
+        if (e.buttons & 4) flags |= 4  // middle
+        mod._DG_MouseButtonEvent(flags)
+    }
 
-/**
- * Returns true if the key should be captured by the game (prevent browser default).
- *
- * @param {string} key
- * @returns {boolean}
- */
-function isGameKey(key) {
-    const GAME_KEYS = new Set([
-        'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-        'w', 'a', 's', 'd', 'W', 'A', 'S', 'D',
-        ' ', 'Enter', 'Escape',
-        'Control', 'Alt', 'Shift',
-    ])
-    return GAME_KEYS.has(key)
+    canvas.addEventListener('mousedown', sendMouseButtons)
+    canvas.addEventListener('mouseup',   sendMouseButtons)
 }

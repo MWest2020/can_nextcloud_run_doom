@@ -8,26 +8,33 @@ DoomNextcloud is committed to 100% open playable out of the box.
 [Freedoom](https://freedoom.github.io/) provides a complete, freely licensed
 IWAD compatible with the Doom engine format. No proprietary Doom WAD is required.
 
-## What to place here
+## Required file
 
-| File | Description | Required for MVP? |
-|------|-------------|-------------------|
-| `freedoom2.wad` | Freedoom Phase 2 — full 32-level campaign (recommended) | Yes |
-| `freedoom1.wad` | Freedoom Phase 1 — episode format | Optional |
+The app expects exactly:
+
+```
+public/assets/freedoom/freedoom1.wad
+```
+
+(Freedoom Phase 1 — episode format, ~12 MB)
 
 ## How to obtain Freedoom
 
-Freedoom is **not bundled** in this repository because the WAD file is large (~50 MB).
-Download it from the official release page:
+```bash
+# Download the latest Freedoom release zip
+wget https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip
 
+# Extract freedoom1.wad
+unzip freedoom-0.13.0.zip freedoom-0.13.0/freedoom1.wad
+
+# Place it in the app directory
+cp freedoom-0.13.0/freedoom1.wad \
+   /var/www/html/custom_apps/doomnextcloud/public/assets/freedoom/freedoom1.wad
 ```
-https://github.com/freedoom/freedoom/releases
-```
 
-Pick the latest stable release and download `freedoom-<version>.zip`.
-Extract `freedoom2.wad` from the archive and place it in this directory.
+**Verify the checksum** against the SHA256 published on the Freedoom releases page.
 
-**Verify the checksum** against the published SHA256 on the releases page before deploying.
+Latest releases: https://github.com/freedoom/freedoom/releases
 
 ## No auto-download
 
