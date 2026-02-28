@@ -15,8 +15,16 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+# DOOMNEXTCLOUD_SCRIPT_DIR is set by the Dockerfile when scripts are baked in.
+# When run from the repo via volume mount, fall back to the script's own directory.
+if [ -n "${DOOMNEXTCLOUD_SCRIPT_DIR:-}" ]; then
+    SCRIPT_DIR="${DOOMNEXTCLOUD_SCRIPT_DIR}"
+    REPO_ROOT="/workspace"
+else
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+fi
+
 OUTPUT_DIR="${REPO_ROOT}/public/wasm"
 DOOMGENERIC_SRC="/doomgeneric/doomgeneric"
 PLATFORM_SRC="${SCRIPT_DIR}/doomgeneric_wasm.c"
@@ -29,13 +37,18 @@ echo ""
 
 mkdir -p "${OUTPUT_DIR}"
 
-# Collect all doomgeneric Doom source files.
-# doomgeneric/doomgeneric/*.c contains the Doom game source; the DG_* platform
-# functions are provided by our doomgeneric_wasm.c (not from any platforms/ dir).
-DOOM_SOURCES=$(find "${DOOMGENERIC_SRC}" -maxdepth 1 -name '*.c' | sort)
+# Collect doomgeneric Doom source files, excluding existing platform layers.
+# doomgeneric_*.c  — platform implementations (allegro, emscripten, sdl, win, …)
+# i_allegro*.c     — allegro-specific sound/music; excluded because allegro.h absent
+# We supply our own platform layer: doomgeneric_wasm.c (added via PLATFORM_SRC).
+DOOM_SOURCES=$(find "${DOOMGENERIC_SRC}" -maxdepth 1 -name '*.c' \
+    ! -name 'doomgeneric_*.c' \
+    ! -name 'i_allegro*.c' \
+    | sort)
 
 emcc \
     -O2 \
+    -DFEATURE_SOUND \
     -s WASM=1 \
     -s ASYNCIFY=1 \
     -s ASYNCIFY_STACK_SIZE=65536 \

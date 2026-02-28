@@ -81,10 +81,10 @@ void DG_SetWindowTitle(const char* title) {
 
 #define KEY_QUEUE_SIZE 512
 
-static int  s_key_pressed[KEY_QUEUE_SIZE];
-static int  s_key_code[KEY_QUEUE_SIZE];
-static int  s_key_head = 0;
-static int  s_key_tail = 0;
+static int           s_key_pressed[KEY_QUEUE_SIZE];
+static unsigned char s_key_code[KEY_QUEUE_SIZE];
+static int           s_key_head = 0;
+static int           s_key_tail = 0;
 
 /*
  * Called by JS: Module._DG_KeyEvent(pressed, doomKey)
@@ -101,7 +101,7 @@ void DG_KeyEvent(int pressed, int doom_key) {
 }
 
 /* Called by doomgeneric each tick to drain the key queue */
-int DG_GetKey(int* pressed, int* doom_key) {
+int DG_GetKey(int* pressed, unsigned char* doom_key) {
     if (s_key_head == s_key_tail) return 0;
     *pressed  = s_key_pressed[s_key_head];
     *doom_key = s_key_code[s_key_head];
@@ -149,4 +149,21 @@ void DG_GetMouseState(int* buttons, int* dx, int* dy) {
     *dy      = s_mouse_dy;
     s_mouse_dx = 0;
     s_mouse_dy = 0;
+}
+
+/* ── Entry point ─────────────────────────────────────────────────── */
+
+/*
+ * main() is required by Emscripten.  It is invoked from JS via
+ * Module.callMain(['-iwad', '/freedoom1.wad']) after the WAD has been
+ * written to the in-memory filesystem.
+ *
+ * doomgeneric_Create() calls D_DoomMain() which contains the infinite
+ * game loop.  ASYNCIFY transforms emscripten_sleep() calls in DG_SleepMs()
+ * into coroutine-style yields so the browser event loop stays alive
+ * between frames.
+ */
+int main(int argc, char **argv) {
+    doomgeneric_Create(argc, argv);
+    return 0; /* never reached */
 }

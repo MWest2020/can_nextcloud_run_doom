@@ -14,7 +14,7 @@
 #       doomnextcloud-builder \
 #       bash /workspace/build/runtime/build.sh
 
-FROM emscripten/emsdk:3.1.50
+FROM docker.io/emscripten/emsdk:3.1.50
 
 LABEL org.opencontainers.image.title="doomnextcloud-builder"
 LABEL org.opencontainers.image.description="Emscripten build environment for DoomNextcloud WASM engine"
@@ -26,13 +26,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         make \
     && rm -rf /var/lib/apt/lists/*
 
-# Pin doomgeneric to a known-good commit for reproducibility.
-# To update: set to the desired commit SHA and rebuild the image.
-ENV DOOMGENERIC_COMMIT=a15ca44ac6f45f2ce73a7d3cfcf38aee7aaef82d
+# Pinned commit for reproducible builds (verified 2026-02-28).
+# To update: bump SHA and rebuild image.
+ENV DOOMGENERIC_COMMIT=fc601639494e089702a1ada082eb51aaafc03722
 
 RUN git clone https://github.com/ozkl/doomgeneric.git /doomgeneric \
     && git -C /doomgeneric checkout ${DOOMGENERIC_COMMIT}
 
 WORKDIR /workspace
+
+# Copy build scripts into the image so they can be executed without volume exec issues
+COPY build.sh /build/build.sh
+COPY doomgeneric_wasm.c /build/doomgeneric_wasm.c
+RUN chmod +x /build/build.sh
+
+ENV DOOMNEXTCLOUD_SCRIPT_DIR=/build
 
 CMD ["bash", "-c", "echo 'DoomNextcloud builder ready.'; emcc --version | head -1"]

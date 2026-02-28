@@ -48,5 +48,8 @@ tests/js/coverage/
 public/wasm/doom.js
 public/wasm/doom.wasm
 
+# Freedoom WAD (placed by sysadmin; not bundled in repo — see public/assets/freedoom/README.md)
+public/assets/freedoom/*.wad
+
 # Lock files (optional: commit lockfiles for reproducibility)
 # js/package-lock.json
