@@ -75,8 +75,18 @@ const PREVENT_KEYS = new Set([
     'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
 ])
 
+/** Returns true if el is a text input that should consume keyboard events */
+const isTextInput = (el) => {
+    if (!el) return false
+    const tag = el.tagName
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable
+}
+
 /**
- * Attach keyboard and mouse event listeners to the canvas.
+ * Attach keyboard and mouse event listeners.
+ * Keyboard events are captured at document level so they work regardless of
+ * which element has focus — events are only skipped when a text input is
+ * focused (search boxes, NC dialogs, etc).
  * getModule() must return the live Emscripten Module object (may be null
  * before the WASM runtime is fully initialised — calls are silently skipped).
  *
@@ -84,10 +94,10 @@ const PREVENT_KEYS = new Set([
  * @param {() => object|null} getModule  getter for window.Module
  */
 export function setupInput(canvas, getModule) {
-    // Ensure canvas is focusable
+    // Ensure canvas is focusable (for click-to-focus and pointer lock)
     if (canvas.tabIndex < 0) canvas.tabIndex = 0
 
-    /* ── Keyboard ──────────────────────────────────────────────── */
+    /* ── Keyboard: document-level so canvas focus is not required ── */
 
     const sendKey = (pressed, browserKey) => {
         const doomKey = KEY_MAP[browserKey]
@@ -96,12 +106,14 @@ export function setupInput(canvas, getModule) {
         if (mod?._DG_KeyEvent) mod._DG_KeyEvent(pressed ? 1 : 0, doomKey)
     }
 
-    canvas.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', (e) => {
+        if (isTextInput(document.activeElement)) return
         if (PREVENT_KEYS.has(e.key)) e.preventDefault()
         sendKey(true, e.key)
     })
 
-    canvas.addEventListener('keyup', (e) => {
+    document.addEventListener('keyup', (e) => {
+        if (isTextInput(document.activeElement)) return
         if (PREVENT_KEYS.has(e.key)) e.preventDefault()
         sendKey(false, e.key)
     })
