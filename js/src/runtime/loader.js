@@ -11,12 +11,13 @@
  * No SharedArrayBuffer / COOP/COEP headers required (ASYNCIFY build).
  */
 
-// Resolve the app web root at runtime via Nextcloud's OC.appswebroots,
-// which accounts for whether the app lives in apps/ or custom_apps/.
-// Fall back to /apps/doomnextcloud for dev environments without NC globals.
-const APP_BASE  = (typeof OC !== 'undefined' && OC.appswebroots?.doomnextcloud)
-    ? OC.appswebroots.doomnextcloud
-    : '/apps/doomnextcloud'
+// Resolve the app web root at runtime.
+// NC 32+ sets window._oc_appswebroots (not OC.appswebroots) for custom_apps/
+// installations.  Check both globals so this works across NC versions.
+const APP_BASE  =
+    window._oc_appswebroots?.doomnextcloud ||
+    (typeof OC !== 'undefined' && OC.appswebroots?.doomnextcloud) ||
+    '/custom_apps/doomnextcloud'
 const WASM_JS   = `${APP_BASE}/public/wasm/doom.js`
 const WAD_URL   = `${APP_BASE}/public/assets/freedoom/freedoom1.wad`
 const WAD_PATH  = '/freedoom1.wad'
