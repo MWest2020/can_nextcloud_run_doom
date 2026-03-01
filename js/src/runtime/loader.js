@@ -18,7 +18,8 @@ const APP_BASE  =
     window._oc_appswebroots?.doomnextcloud ||
     (typeof OC !== 'undefined' && OC.appswebroots?.doomnextcloud) ||
     '/custom_apps/doomnextcloud'
-const WASM_JS   = `${APP_BASE}/public/wasm/doom.js`
+const WASM_DIR  = `${APP_BASE}/public/wasm`
+const WASM_JS   = `${WASM_DIR}/doom.js`
 const WAD_URL   = `${APP_BASE}/public/assets/freedoom/freedoom1.wad`
 const WAD_PATH  = '/freedoom1.wad'
 
@@ -99,6 +100,11 @@ export async function initRuntime(canvas, loadingEl) {
         window.Module = {
             canvas,
             noInitialRun: true,
+
+            // When doom.js is loaded as a dynamic <script>, document.currentScript
+            // may be null so Emscripten can't derive the WASM directory automatically.
+            // Provide locateFile so doom.wasm is always fetched from the right URL.
+            locateFile: (path) => `${WASM_DIR}/${path}`,
 
             preRun: [function () {
                 // Write the WAD into the Emscripten virtual filesystem
