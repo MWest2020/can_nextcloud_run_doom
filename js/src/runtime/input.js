@@ -106,17 +106,19 @@ export function setupInput(canvas, getModule) {
         if (mod?._DG_KeyEvent) mod._DG_KeyEvent(pressed ? 1 : 0, doomKey)
     }
 
+    // Use capture phase so we intercept before NC's own document-level
+    // keyboard shortcut handlers, which may call stopImmediatePropagation().
     document.addEventListener('keydown', (e) => {
         if (isTextInput(document.activeElement)) return
         if (PREVENT_KEYS.has(e.key)) e.preventDefault()
         sendKey(true, e.key)
-    })
+    }, { capture: true })
 
     document.addEventListener('keyup', (e) => {
         if (isTextInput(document.activeElement)) return
         if (PREVENT_KEYS.has(e.key)) e.preventDefault()
         sendKey(false, e.key)
-    })
+    }, { capture: true })
 
     /* ── Mouse: focus canvas on click ──────────────────────────── */
 
