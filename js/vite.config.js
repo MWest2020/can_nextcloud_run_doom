@@ -31,6 +31,11 @@ export default defineConfig({
                 main: resolve(__dirname, 'src/main.js'),
             },
             output: {
+                // IIFE wraps the whole bundle in a closure, preventing minified
+                // variable names (e.g. '$') from leaking into the NC page's global
+                // scope and colliding with jQuery or other NC globals.
+                format: 'iife',
+                name: 'DoomNextcloud',
                 entryFileNames: '[name].js',
                 chunkFileNames: '[name].js',
                 assetFileNames: (assetInfo) => {
