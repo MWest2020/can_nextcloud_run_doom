@@ -38,6 +38,12 @@ EM_JS(void, js_init_canvas, (int w, int h), {
 EM_JS(void, js_blit_frame, (int w, int h, const uint8_t* pixels), {
     const canvas = document.getElementById('doomnextcloud-canvas');
     if (!canvas) return;
+    /* Debug: log first 5 frames to confirm the game loop is running */
+    if (!canvas._doomFrameCount) canvas._doomFrameCount = 0;
+    canvas._doomFrameCount++;
+    if (canvas._doomFrameCount <= 5) {
+        console.debug('[DoomNextcloud] frame', canvas._doomFrameCount);
+    }
     const ctx = canvas.getContext('2d');
     const imageData = ctx.createImageData(w, h);
     const dst = imageData.data;

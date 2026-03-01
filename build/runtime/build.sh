@@ -51,7 +51,7 @@ emcc \
     -DFEATURE_SOUND \
     -s WASM=1 \
     -s ASYNCIFY=1 \
-    -s ASYNCIFY_STACK_SIZE=65536 \
+    -s ASYNCIFY_STACK_SIZE=262144 \
     -s USE_SDL=2 \
     -s USE_SDL_MIXER=2 \
     -s ALLOW_MEMORY_GROWTH=1 \

@@ -20,7 +20,7 @@ as a WebAssembly module and the default IWAD is Freedoom — all assets served l
 - Freedoom WAD placed by the server administrator (see documentation).
 - Modern browser: Chrome, Firefox, or Safari (latest 2 major versions).
     ]]></description>
-    <version>0.0.7</version>
+    <version>0.0.9</version>
     <licence>agpl</licence>
     <author mail="PLACEHOLDER@example.com" homepage="https://github.com/OWNER/doomnextcloud">
         DoomNextcloud Contributors
