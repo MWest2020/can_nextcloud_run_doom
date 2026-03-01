@@ -121,8 +121,15 @@ export async function initRuntime(canvas, loadingEl) {
                     // Start audio unlock handler
                     setupAudioUnlock(canvas)
 
-                    // Boot the game
-                    window.Module.callMain(['-iwad', WAD_PATH])
+                    // Boot the game.
+                    // -nomusic: browser has no MIDI synth; avoids noisy console errors.
+                    //           Sound effects (OPL/digital) still work via SDL_Mixer.
+                    window.Module.callMain(['-iwad', WAD_PATH, '-nomusic'])
+
+                    // Give the canvas keyboard focus so input works immediately.
+                    // Without this the user has to click the canvas first.
+                    canvas.focus()
+
                     resolve()
                 } catch (err) {
                     reject(err)
